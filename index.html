@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartRehab - Markedsføringsworkshop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Roboto:wght@300;400;700&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --color-brand-black: #0D0D0D;
+            --color-brand-accent: rgb(47, 124, 83);
+            --color-brand-white: #FFFFFF;
+            --color-grey-lightest: #D9D9D9;
+            --font-primary: 'Roboto', sans-serif;
+            --header-font: 'Plus Jakarta Sans', sans-serif;
+            --font-weight-light: 300;
+            --font-weight-bold: 700;
+            --letter-spacing-tight: -0.04em;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background-color: var(--color-brand-black);
+            color: var(--color-grey-lightest);
+            font-family: var(--font-primary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* --- LAYERING --- */
+        #aurora-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        
+        .main-image-bg { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1); 
+            width: 70%; height: 60%; object-fit: contain; 
+            filter: drop-shadow(0 0 60px rgba(47, 124, 83, 0.2));
+            z-index: 3; opacity: 0.85; 
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .main-image-bg.zoomed-out {
+            width: 35%; height: 35%; 
+            opacity: 0.8;
+            transform: translate(-50%, -65%) scale(0.85); 
+        }
+
+        .main-image-bg.force-hide { opacity: 0 !important; visibility: hidden !important; }
+
+        #synapse-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: 50; pointer-events: none; 
+        }
+
+        .grain-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; 
+            pointer-events: none; opacity: 0.03; 
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); 
+        }
+        
+        /* --- TYPOGRAPHY --- */
+        .grad-aurora { 
+            background: linear-gradient(135deg, var(--color-brand-accent) 0%, #818CF8 100%); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text;
+            display: inline-block;
+        }
+
+        .branding-text-bold { 
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800; 
+            letter-spacing: var(--letter-spacing-tight); 
+            line-height: 1.3;
+            font-family: var(--header-font);
+            padding-bottom: 0.15em;
+        }
+
+        .sub-label { 
+            font-size: 1.1rem; 
+            color: rgba(255, 255, 255, 0.6); 
+            text-transform: uppercase; 
+            letter-spacing: 0.25em; 
+            font-weight: var(--font-weight-light);
+            display: block;
+        }
+
+        /* --- GLOBAL NAV GRID --- */
+        #global-nav-grid {
+            position: fixed; z-index: 100;
+            display: grid; grid-template-columns: repeat(6, 1fr);
+            gap: 15px; width: 100%; max-width: 1300px;
+            left: 50%; bottom: 125px; transform: translateX(-50%);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0; pointer-events: none;
+        }
+
+        #global-nav-grid.visible { opacity: 1; pointer-events: auto; }
+
+        .service-card {
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 2.2rem 1rem; text-align: center;
+            border-radius: 4px;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(15px);
+            min-height: 190px;
+            width: 100%;
+            position: relative;
+        }
+
+        .service-card i { font-size: 3rem; color: #fff; margin-bottom: 1rem; }
+        .brand-suffix { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1.1; }
+
+        .service-card.active-topic {
+            background: rgba(47, 124, 83, 0.25);
+            border-color: var(--color-brand-accent);
+            box-shadow: 0 0 50px rgba(47, 124, 83, 0.4);
+        }
+
+        .badge-upcoming {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px; border-radius: 4px;
+            font-size: 0.6rem; letter-spacing: 0.1em;
+            text-transform: uppercase; border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* --- VERTICAL SIDEBAR --- */
+        #global-nav-grid.sidebar-layout {
+            grid-template-columns: 1fr;
+            width: 180px; left: 40px; top: 50%; bottom: auto;
+            transform: translateY(-50%); gap: 10px;
+        }
+
+        #global-nav-grid.sidebar-layout .service-card {
+            padding: 1.2rem 0.8rem;
+            min-height: 90px;
+        }
+
+        #global-nav-grid.sidebar-layout .service-card i {
+            font-size: 1.6rem;
+            margin-bottom: 0.4rem;
+        }
+
+        #global-nav-grid.sidebar-layout .brand-suffix {
+            font-size: 0.8rem;
+        }
+        
+        #global-nav-grid.sidebar-layout .badge-upcoming {
+            display: none;
+        }
+
+        /* --- SLIDE SYSTEM --- */
+        #slides-wrapper { position: relative; z-index: 40; width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; }
+        .slide {
+            position: absolute; width: 100%; height: 100%;
+            opacity: 0; visibility: hidden;
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .slide.active { opacity: 1; visibility: visible; }
+
+        /* --- CONTENT REVEAL ANIMATION --- */
+        .content-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .slide.active .content-reveal {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.5s;
+        }
+
+        /* --- STANDARDIZED MEDIA SIZES --- */
+        .portrait-video-container {
+            width: 300px; 
+            height: 533px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            overflow: hidden; 
+            background: #000;
+            border-radius: 4px;
+        }
+
+        .report-display-card {
+            width: 380px;
+            height: 533px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: #fff; 
+            transform: rotate(-2deg);
+            transition: transform 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .report-display-card:hover { transform: rotate(0deg) scale(1.05); }
+        .report-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .fitness-report-crop { object-fit: cover; object-position: center 35%; transform: scale(1.1); }
+        .deep-dive-video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* --- WORKSHOP CARD --- */
+        .workshop-card {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+        }
+        .script-box {
+            font-family: 'Courier New', monospace;
+            background: rgba(255,255,255,0.05);
+            padding: 1.5rem;
+            border-left: 2px solid var(--color-brand-accent);
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #eee;
+        }
+        .btn-download {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            text-decoration: none;
+            color: white;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        .btn-download:hover {
+            background: var(--color-brand-accent);
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        /* --- BUSINESS MODEL STYLES (Restored) --- */
+        .concept-triad { display: flex; justify-content: center; align-items: center; gap: 30px; margin: 30px auto; }
+        .triad-item { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .triad-icon-box {
+            width: 100px; height: 100px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 2.5rem; color: var(--color-brand-accent);
+        }
+        .math-symbol { font-size: 2rem; font-weight: bold; color: rgba(255,255,255,0.3); }
+        .result-box {
+            background: var(--color-brand-accent); color: white; padding: 15px 30px;
+            border-radius: 50px; font-size: 1.2rem; font-weight: bold;
+            box-shadow: 0 10px 30px rgba(47, 124, 83, 0.4);
+        }
+        .pricing-consolidated-card {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; max-width: 1100px; margin: 30px auto;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        .pricing-option { padding: 30px; text-align: left; border-right: 1px solid rgba(255, 255, 255, 0.1); }
+        .pricing-option:last-child { border-right: none; }
+        .pricing-header { border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 15px; margin-bottom: 15px; }
+        .pricing-title { font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
+        .pricing-cost { font-size: 1.8rem; color: var(--color-brand-accent); font-weight: bold; margin-top: 5px; }
+        .pricing-desc { font-size: 0.9rem; color: rgba(255,255,255,0.7); line-height: 1.5; }
+
+        /* --- MARKETING STYLES (Restored) --- */
+        .marketing-video-container { width: 220px; height: 391px; }
+        .viral-stat-overlay {
+            position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+            background: rgba(47, 124, 83, 0.95); color: white;
+            padding: 6px 12px; border-radius: 4px; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 10; pointer-events: none;
+            width: 85%; text-align: center;
+        }
+        .viral-glitch-text { animation: glitch 5s infinite; }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            2% { transform: translate(-2px, 2px); }
+            4% { transform: translate(-2px, -2px); }
+            6% { transform: translate(2px, 2px); }
+            8% { transform: translate(2px, -2px); }
+            10% { transform: translate(0); }
+        }
+
+        /* --- LOGO --- */
+        .bottom-logo {
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            height: 100px; z-index: 110; opacity: 0.8; pointer-events: none;
+            transition: all 0.5s ease;
+        }
+
+        /* --- INTRO TEXT --- */
+        #title-loop {
+            position: absolute; left: 6rem; top: 6rem; z-index: 60; 
+            text-align: left; width: 100%; transition: all 1s ease;
+        }
+        #title-loop.fade-out { opacity: 0; transform: translateY(-20px); pointer-events: none; }
+        .fade-group { position: absolute; top: 0; left: 0; width: 100%; opacity: 0; white-space: nowrap; }
+        .msg-1 { animation: loopFade1 5s forwards; }
+
+        @keyframes loopFade1 {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); visibility: visible; }
+        }
+
+        /* =========================================
+           MOBILE RESPONSIVENESS (Max-width 768px)
+           ========================================= */
+        @media (max-width: 768px) {
+            body, html { overflow: hidden; }
+            .slide { overflow-y: auto; overflow-x: hidden; }
+            .bottom-logo { height: 60px; bottom: 5px; }
+            #title-loop { left: 1.5rem !important; top: 25% !important; width: 90% !important; }
+            .branding-text-bold { font-size: 2.2rem !important; white-space: normal; }
+            .sub-label { font-size: 0.9rem !important; white-space: normal; }
+
+            /* Navigation Mobile */
+            #global-nav-grid {
+                grid-template-columns: 1fr !important;
+                width: 90% !important; left: 50% !important; bottom: 80px !important;
+                gap: 10px !important;
+            }
+            .service-card {
+                min-height: 60px !important;
+                padding: 0.8rem !important;
+                flex-direction: row !important;
+                justify-content: flex-start !important;
+                gap: 15px;
+            }
+            .service-card i { font-size: 1.5rem !important; margin-bottom: 0 !important; }
+            .brand-suffix { font-size: 0.9rem !important; }
+            
+            #global-nav-grid.sidebar-layout {
+                width: 100% !important; left: 0 !important; top: auto !important; bottom: 0 !important;
+                transform: none !important; display: flex !important; flex-direction: row !important;
+                justify-content: space-around; background: rgba(13, 13, 13, 0.95);
+                padding: 10px 5px !important; z-index: 200; overflow-x: auto;
+            }
+            #global-nav-grid.sidebar-layout .service-card {
+                flex-direction: column !important; min-height: auto !important; padding: 5px !important;
+                background: transparent !important; border: none !important; min-width: 60px;
+            }
+            #global-nav-grid.sidebar-layout .brand-suffix { display: none !important; }
+            #global-nav-grid.sidebar-layout .service-card.active-topic i { color: var(--color-brand-accent); }
+
+            /* Content */
+            .slide.active .content-reveal { 
+                padding-top: 2rem; padding-bottom: 150px; flex-direction: column !important; 
+            }
+            .report-display-card { display: none !important; } 
+            .portrait-video-container {
+                width: 80vw !important; height: auto !important; aspect-ratio: 9/16; max-height: 50vh;
+            }
+            .workshop-card { width: 90%; padding: 1rem; }
+            .flex-row.md\:gap-16 { gap: 2rem; }
+
+            /* Business & Marketing Mobile */
+            .concept-triad { flex-direction: column !important; gap: 10px; margin: 20px 0; }
+            .math-symbol { transform: rotate(90deg); font-size: 1.5rem; }
+            .pricing-consolidated-card { 
+                grid-template-columns: 1fr !important; 
+                width: 100% !important;
+                margin-bottom: 100px; 
+            }
+            .pricing-option { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 20px; }
+            
+            .marketing-video-container { width: 160px !important; height: 284px !important; }
+            .flex-row.gap-12 { flex-direction: column !important; gap: 2rem !important; }
+            .border-r { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2rem; padding-right: 0 !important; }
+        }
+        
+        /* Specific Case Study Style */
+        .case-grid {
+             grid-template-columns: 1fr 1.5fr !important;
+        }
+        @media (max-width: 768px) {
+            .case-grid { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BAKGRUNNSEFFEKTER -->
+    <div id="aurora-container"><canvas id="auroraCanvas"></canvas></div>
+    <div class="grain-overlay"></div>
+    <div id="synapse-container"><canvas id="synapseCanvas"></canvas></div>
+
+    <img src="https://storage.googleapis.com/files_webpage/Medium%20Transparent.png" class="main-image-bg" id="bg-image">
+
+    <!-- BUNNLOGO -->
+    <img src="https://storage.googleapis.com/intro_alphatek/logo.png" alt="SmartRehab Logo" class="bottom-logo">
+
+    <!-- GLOBAL NAV GRID -->
+    <!-- Updated order: Shoulder, RTP, Senior, Fitness, General, Run -->
+    <div id="global-nav-grid">
+        <div class="service-card" id="card-shoulder"><i class="ph ph-person-arms-spread"></i><div class="brand-suffix grad-aurora">ShoulderScreen</div></div>
+        <div class="service-card" id="card-rtp"><i class="ph ph-sneaker-move"></i><div class="brand-suffix grad-aurora">ReturnToPlay</div></div>
+        <div class="service-card" id="card-senior"><i class="ph ph-users"></i><div class="brand-suffix grad-aurora">SeniorFitness</div></div>
+        <div class="service-card" id="card-fitness" style="opacity: 0.7;">
+            <i class="ph ph-dna"></i>
+            <div class="brand-suffix grad-aurora">FitnessAge</div>
+            <div class="badge-upcoming">Kommer</div>
+        </div>
+        <div class="service-card" id="card-general"><i class="ph ph-chart-bar"></i><div class="brand-suffix grad-aurora">Objektiv Data</div></div>
+        <div class="service-card" id="card-run"><i class="ph ph-person-simple-run"></i><div class="brand-suffix grad-aurora">RunSafer</div></div>
+    </div>
+
+    <div id="title-loop">
+        <div class="relative h-48 flex flex-col items-start justify-start">
+            <div class="fade-group msg-1">
+                <div class="branding-text-bold grad-aurora">SmartRehab</div>
+                <div class="sub-label mt-3">Markedsføringsworkshop</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="slides-wrapper">
+        <!-- Slide 0: Intro -->
+        <div class="slide active" id="slide-0"></div>
+
+        <!-- Slide 1: Menu View -->
+        <div class="slide" id="slide-1">
+            <div class="flex flex-col items-center justify-start h-full text-center pt-24 md:pt-24 pt-32">
+                <div class="branding-text-bold grad-aurora mb-2">SmartRehab</div>
+                <div class="sub-label">Velg et konsept for å lære mer</div>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             1. SHOULDER SECTION
+             ============================================== -->
+        <!-- Slide 2: Info -->
+        <div class="slide" id="slide-2">
+            <div class="flex flex-col md:flex-row items-center justify-center md:gap-16 gap-8 w-full h-full px-6 md:px-20">
+                <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16 md:ml-48 content-reveal">
+                    <div class="shrink-0 portrait-video-container shadow-2xl"><video class="deep-dive-video" id="video-shoulder-info" muted loop playsinline><source src="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/Social%20Media%20-%20Alphatatek%20-%20Shoulder%20Test%20-%204k%20%20(1).mp4" type="video/mp4"></video></div>
+                    <div class="shrink-0 report-display-card"><img src="https://storage.googleapis.com/intro_alphatek/reports/shoulder.png" alt="Shoulder Report" class="report-img"></div>
+                    <div class="flex flex-col gap-0 max-w-md items-center md:items-start text-center md:text-left">
+                        <span class="sub-label mb-2">Overhead Readiness</span>
+                        <h3 class="branding-text-bold grad-aurora" style="font-size: 3.5rem;">Shoulder Screening</h3>
+                        <p class="text-xl text-white font-light leading-relaxed opacity-80 mt-2">ASH-protokollen sikrer at skulderen er klar for belastning. Objektiv analyse av isometrisk styrke og symmetri.</p>
+                        
+                        <!-- Added Download Button -->
+                        <a href="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/Social%20Media%20-%20Alphatatek%20-%20Shoulder%20Test%20-%204k%20%20(1).mp4" download class="btn-download w-fit">
+                            <i class="ph ph-download-simple"></i> Last ned Video
+                        </a>
+                        
+                        <div class="mt-4 text-sm opacity-50 uppercase tracking-widest">Neste: Markedsføring &rarr;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Workshop -->
+        <div class="slide" id="slide-3">
+            <div class="flex flex-col md:flex-row items-center justify-center md:gap-16 gap-8 w-full h-full px-6 md:px-20">
+                <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16 md:ml-48 content-reveal">
+                    <div class="shrink-0 portrait-video-container shadow-2xl" style="border-color: var(--color-brand-accent);">
+                        <video class="deep-dive-video" id="video-shoulder-workshop" muted loop playsinline><source src="https://storage.googleapis.com/intro_alphatek/Nemus%20Stavanger/alphatek%20skulder.mov" type="video/mp4"></video>
+                    </div>
+                    <div class="workshop-card">
+                        <h3 class="text-2xl font-bold text-white mb-2">Workshop: Kommunikasjon</h3>
+                        <p class="text-sm text-gray-400">Bruk denne malen for å snakke direkte til pasienten.</p>
+                        <div class="script-box">
+                            "Mange går lenge med skuldersmerter og opplever at både jobb, trening og daglege aktivitetar er krevjande. Hos oss bruker vi ein objektiv skuldertest for å finne ut kva skulderen din faktisk toler, og kva som skal til for å få deg raskare tilbake til normal funksjon. Då kan vi tilpasse behandling og trening ved å justere opplegget undervegs, etter kvart som skulderen din blir sterkare. Målet vårt er at du skal få eit kortare skadeforløp med ein trygg progresjon, og ei skulder som fungerer i kvardagen igjen. Book ein time hos oss, så hjelper vi deg i gang."
+                        </div>
+                        <div class="flex flex-wrap gap-4 mt-6">
+                            <a href="https://storage.googleapis.com/intro_alphatek/Nemus%20Stavanger/alphatek%20skulder.mov" download class="btn-download"><i class="ph ph-video-camera"></i> Last ned Video</a>
+                            <a href="https://storage.googleapis.com/intro_alphatek/reports/shoulder.png" download class="btn-download"><i class="ph ph-file-pdf"></i> Last ned Rapport</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             2. RTP (Return to Play) SECTION
+             ============================================== -->
+        <!-- Slide 4: Info -->
+        <div class="slide" id="slide-4">
+            <div class="flex flex-col md:flex-row items-center justify-center md:gap-16 gap-8 w-full h-full px-6 md:px-20">
+                <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16 md:ml-48 content-reveal">
+                    <div class="shrink-0 portrait-video-container shadow-2xl"><video class="deep-dive-video" id="video-rtp-info" muted loop playsinline><source src="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/NO%20TEXT%20ON%20-%20Alphatatek%20-%20Knee%20Test%20-%204k%20.mp4" type="video/mp4"></video></div>
+                    <div class="shrink-0 report-display-card"><img src="https://storage.googleapis.com/intro_alphatek/reports/Return%20to%20play.png" alt="RTP Report" class="report-img"></div>
+                    <div class="flex flex-col gap-0 max-w-md items-center md:items-start text-center md:text-left">
+                        <span class="sub-label mb-2">Kne-vurdering</span>
+                        <h3 class="branding-text-bold grad-aurora" style="font-size: 3.5rem;">Return to Play</h3>
+                        <p class="text-xl text-white font-light leading-relaxed opacity-80 mt-2">Robust vurdering for å avgjøre klarhet etter kneskade. Kombinerer objektive hopp-data med symmetri-analyse.</p>
+                        
+                        <!-- Added Download Button -->
+                        <a href="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/NO%20TEXT%20ON%20-%20Alphatatek%20-%20Knee%20Test%20-%204k%20.mp4" download class="btn-download w-fit">
+                            <i class="ph ph-download-simple"></i> Last ned Video
+                        </a>
+
+                        <div class="mt-4 text-sm opacity-50 uppercase tracking-widest">Neste: Markedsføring &rarr;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Workshop -->
+        <div class="slide" id="slide-5">
+            <div class="flex flex-col md:flex-row items-center justify-center md:gap-16 gap-8 w-full h-full px-6 md:px-20">
+                <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16 md:ml-48 content-reveal">
+                    <div class="shrink-0 portrait-video-container shadow-2xl" style="border-color: var(--color-brand-accent);">
+                        <video class="deep-dive-video" id="video-rtp-workshop" muted loop playsinline><source src="https://storage.googleapis.com/intro_alphatek/Nemus%20Stavanger/Alphatek%20RTP.mov" type="video/mp4"></video>
+                    </div>
+                    <div class="workshop-card">
+                        <h3 class="text-2xl font-bold text-white mb-2">Workshop: Trygg Retur</h3>
+                        <p class="text-sm text-gray-400">Fokus på trygghet og data for idrettsutøvere.</p>
+                        <div class="script-box">
+                            "Det vanskelegaste etter ein skade er ofte ikkje selve opptreninga, men å vite akkurat når du faktisk er klar for neste steg. Hos oss bruker vi objektive testar for å finne ut kva kroppen din faktisk toler akkurat no. Mange held igjen for lenge, andre pushar for tidleg. Begge delar kan auke risikoen for nye skadar. Vi testar blant anna styrke, kontroll og stabilitet i beina dine. Dette gir oss ein tydeleg baseline, og basert på resultata lagar vi eit skreddarsydd trenings- og rehab-opplegg. Vi testar deg på nytt undervegs og justerer belastninga når kroppen er klar. Målet er enkelt: Å komme raskt tilbake i aktivitet, sterkare og tryggare enn før. Viss dette er noko for deg, book ein time hos oss."
+                        </div>
+                        <div class="flex flex-wrap gap-4 mt-6">
+                            <a href="https://storage.googleapis.com/intro_alphatek/Nemus%20Stavanger/Alphatek%20RTP.mov" download class="btn-download"><i class="ph ph-video-camera"></i> Last ned Video</a>
+                            <a href="https://storage.googleapis.com/intro_alphatek/reports/Return%20to%20play.png" download class="btn-download"><i class="ph ph-file-pdf"></i> Last ned Rapport</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             3. SENIOR FITNESS SECTION
+             ============================================== -->
+        <!-- Slide 6: Info -->
+        <div class="slide" id="slide-6">
+            <div class="flex flex-col md:flex-row items-center justify-center md:gap-16 gap-8 w-full h-full px-6 md:px-20">
+                <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16 md:ml-48 content-reveal">
+                    <div class="shrink-0 portrait-video-container shadow-2xl"><video class="deep-dive-video" id="video-senior-info" muted loop playsinline><source src="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/Age%20Test%20-%20NO%20TEXT%20ON%20-%20Alphatatek%20-%204k%20.mp4" type="video/mp4"></video></div>
+                    <div class="shrink-0 report-display-card"><img src="https://storage.googleapis.com/intro_alphatek/reports/senior%20raport.png" alt="Senior Report" class="report-img"></div>
+                    <div class="flex flex-col gap-0 max-w-md items-center md:items-start text-center md:text-left">
+                        <span class="sub-label mb-2">Fallforebygging</span>
+                        <h3 class="branding-text-bold grad-aurora" style="font-size: 3.5rem;">Senior Fitness</h3>
+                        <p class="text-xl text-white font-light leading-relaxed opacity-80 mt-2">Kartlegger fallrisiko ved å teste balanse, styrke og funksjon. Vitalt for å opprettholde selvstendighet.</p>
+                        
+                        <!-- Added Download Button -->
+                        <a href="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/Age%20Test%20-%20NO%20TEXT%20ON%20-%20Alphatatek%20-%204k%20.mp4" download class="btn-download w-fit">
+                            <i class="ph ph-download-simple"></i> Last ned Video
+                        </a>
+
+                        <div class="mt-4 text-sm opacity-50 uppercase tracking-widest">Neste: Markedsføring &rarr;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Workshop -->
+        <div class="slide" id="slide-7">
+            <div class="flex flex-col md:flex-row items-center justify-center md:gap-16 gap-8 w-full h-full px-6 md:px-20">
+                <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16 md:ml-48 content-reveal">
+                    <div class="shrink-0 portrait-video-container shadow-2xl" style="border-color: var(--color-brand-accent);">
+                        <video class="deep-dive-video" id="video-senior-workshop" muted loop playsinline><source src="https://storage.googleapis.com/intro_alphatek/Nemus%20Stavanger/Alphatek%20Senior.mov" type="video/mp4"></video>
+                    </div>
+                    <div class="workshop-card">
+                        <h3 class="text-2xl font-bold text-white mb-2">Workshop: Aktiv Alderdom</h3>
+                        <p class="text-sm text-gray-400">Kommuniser trygghet og selvstendighet.</p>
+                        <div class="script-box">
+                            "Å halde seg i form i vaksen alder har stor betydning for både helsa og livskvaliteten din. Samtidig er det mange som er usikre på kva dei faktisk bør gjere for å halde kroppen i gang. Det viktigaste er å vere i aktivitet. For å hjelpe deg i gang har vi eit eige program der du blir testa i balanse, styrke og kroppskontroll. Resultata gir oss eit utgangspunkt, slik at vi saman kan fokusere på det som gir deg best effekt. Vi ønskjer å gi deg meistringskjensle som gjer det gøy å vere aktiv. Høyrest dette kjekt ut? Book ein time hos oss, så hjelper vi deg i gang."
+                        </div>
+                        <div class="flex flex-wrap gap-4 mt-6">
+                            <a href="https://storage.googleapis.com/intro_alphatek/Nemus%20Stavanger/Alphatek%20Senior.mov" download class="btn-download"><i class="ph ph-video-camera"></i> Last ned Video</a>
+                            <a href="https://storage.googleapis.com/intro_alphatek/reports/senior%20raport.png" download class="btn-download"><i class="ph ph-file-pdf"></i> Last ned Rapport</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             4. FITNESS AGE (UPCOMING) - MOVED HERE
+             ============================================== -->
+        <!-- Slide 8: Fitness Age Info -->
+        <div class="slide" id="slide-8">
+            <div class="flex flex-col md:flex-row items-center justify-center md:gap-16 gap-8 w-full h-full px-6 md:px-20">
+                <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16 md:ml-48 content-reveal">
+                    <div class="shrink-0 portrait-video-container shadow-2xl opacity-50"><video class="deep-dive-video" id="video-fitness-info" muted loop playsinline><source src="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/Age%20Test%202%20-%20NO%20TEXT%20ON%20-%20Alphatatek%20-%204k%20%20(1).mp4" type="video/mp4"></video></div>
+                    <div class="shrink-0 report-display-card opacity-50"><img src="https://storage.googleapis.com/intro_alphatek/reports/Skjermbilde%202026-01-28%20kl.%2017.38.43.png" alt="Fitness Age Report" class="report-img fitness-report-crop"></div>
+                    <div class="flex flex-col gap-0 max-w-md items-center md:items-start text-center md:text-left">
+                        <span class="bg-white/10 px-3 py-1 rounded text-sm font-bold mb-4 border border-white/20">KOMMER SNART</span>
+                        <span class="sub-label mb-2">Motivasjonsinnsikt</span>
+                        <h3 class="branding-text-bold grad-aurora" style="font-size: 3.5rem;">Fitness Age</h3>
+                        <p class="text-xl text-white font-light leading-relaxed opacity-80 mt-2">Et konsept som sammenligner biologisk alder med funksjonell alder. Mer materiell kommer snart.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             5. GENERAL / OBJEKTIV DATA SECTION
+             ============================================== -->
+        <!-- Slide 9: General Workshop Only -->
+        <div class="slide" id="slide-9">
+            <div class="flex flex-col md:flex-row items-center justify-center md:gap-16 gap-8 w-full h-full px-6 md:px-20">
+                <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16 md:ml-48 content-reveal">
+                    <div class="shrink-0 portrait-video-container shadow-2xl" style="border-color: #fff;">
+                        <video class="deep-dive-video" id="video-general-workshop" muted loop playsinline><source src="https://storage.googleapis.com/intro_alphatek/Nemus%20Stavanger/Alphatek%20Generelt.mov" type="video/mp4"></video>
+                    </div>
+                    <div class="workshop-card">
+                        <h3 class="text-2xl font-bold text-white mb-2">Konsept: Objektiv Data</h3>
+                        <p class="text-sm text-gray-400">Hvordan selge inn konseptet "moderne klinikk".</p>
+                        <div class="script-box">
+                            "Savner du tydelige svar på hvor langt du har kommet i trenings- og rehabiliteringsprogrammet ditt? Hos oss bruker vi Alphatek for å måle hvordan kroppen din faktisk fungerer. Styrke, balanse og funksjon. Ikke synsing, bare objektive tall. Du får et tydelig utgangspunkt, og en plan som passer dine mål. Vi tester underveis for å få et bilde av din progresjon. Da vet du når du skal pushe og når du skal holde igjen, og du ser tydelig hvor du ligger an. Dette gir deg trygghet i treningen, fordi du vet at planen er basert på faktiske målinger – noe som gir bedre gjennomføring og høyere effekt. Vil du komme i gang på en trygg og effektiv måte? Book en time hos oss, så hjelper vi deg i gang."
+                        </div>
+                        <div class="flex flex-wrap gap-4 mt-6">
+                            <a href="https://storage.googleapis.com/intro_alphatek/Nemus%20Stavanger/Alphatek%20Generelt.mov" download class="btn-download"><i class="ph ph-video-camera"></i> Last ned Video</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             6. RUN SAFER SECTION
+             ============================================== -->
+        <!-- Slide 10: Info -->
+        <div class="slide" id="slide-10">
+             <div class="flex flex-col md:flex-row items-center justify-center md:gap-16 gap-8 w-full h-full px-6 md:px-20">
+                <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16 md:ml-48 content-reveal">
+                    <div class="shrink-0 portrait-video-container shadow-2xl"><video class="deep-dive-video" id="video-run-info" muted loop playsinline><source src="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/Running%20Version%20-%20NO%20TEXT%20ON%20-%20Alphatatek%20-%20Knee%20Test%20-%204k%20.mp4" type="video/mp4"></video></div>
+                    <div class="shrink-0 report-display-card"><img src="https://storage.googleapis.com/intro_alphatek/reports/Return%20to%20play.png" alt="Run Safer Report" class="report-img"></div>
+                    <div class="flex flex-col gap-0 max-w-md items-center md:items-start text-center md:text-left">
+                        <span class="sub-label mb-2">Løpsprotokoll</span>
+                        <h3 class="branding-text-bold grad-aurora" style="font-size: 3.5rem;">Run Safer</h3>
+                        <p class="text-xl text-white font-light leading-relaxed opacity-80 mt-2">En spesifikk protokoll for trygg retur til løping. Etablerer baseline for ytelse og overvåker belastningstoleranse.</p>
+                        
+                        <!-- Added Download Button -->
+                        <a href="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/Running%20Version%20-%20NO%20TEXT%20ON%20-%20Alphatatek%20-%20Knee%20Test%20-%204k%20.mp4" download class="btn-download w-fit">
+                            <i class="ph ph-download-simple"></i> Last ned Video
+                        </a>
+
+                        <div class="mt-4 text-sm opacity-50 uppercase tracking-widest">Markedsføringsmateriell kommer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             7. BUSINESS & MARKETING
+             ============================================== -->
+        
+        <!-- Slide 11: Business Model -->
+        <div class="slide" id="slide-11">
+            <div class="flex flex-col items-center justify-center h-full px-6 md:px-20 content-reveal pt-20 md:pt-0">
+                <div class="w-full max-w-4xl flex flex-col items-center md:items-start text-center md:text-left mb-6">
+                    <span class="sub-label mb-2">Klinikkinntekt</span>
+                    <h2 class="branding-text-bold grad-aurora" style="font-size: 3rem;">Bygg din forretningsmodell</h2>
+                    <p class="text-lg text-white opacity-60 max-w-2xl mt-2">Kombiner tradisjonell vurdering med avansert objektiv data for å skape pakker med høy verdi.</p>
+                </div>
+                <div class="concept-triad">
+                    <div class="triad-item"><div class="triad-icon-box"><i class="ph ph-barbell"></i></div><span class="text-xs uppercase tracking-widest font-bold text-white opacity-60">Styrke</span></div>
+                    <div class="math-symbol">+</div>
+                    <div class="triad-item"><div class="triad-icon-box"><i class="ph ph-brain"></i></div><span class="text-xs uppercase tracking-widest font-bold text-white opacity-60">Psykologi</span></div>
+                    <div class="math-symbol">+</div>
+                    <div class="triad-item"><div class="triad-icon-box"><i class="ph ph-sneaker-move"></i></div><span class="text-xs uppercase tracking-widest font-bold text-white opacity-60">Funksjon</span></div>
+                    <div class="math-symbol">=</div>
+                    <div class="result-box">Trygg Retur til Idrett</div>
+                </div>
+                <div class="pricing-consolidated-card">
+                    <div class="pricing-option"><div class="pricing-header"><div class="pricing-title">Basis Kne-test</div><div class="pricing-cost">1 100,-</div></div><div class="pricing-desc">En rask statussjekk for pågående rehabilitering. Enkle funksjonelle markører for å spore fremgang.</div></div>
+                    <div class="pricing-option"><div class="pricing-header"><div class="pricing-title">Standard Vurdering</div><div class="pricing-cost">1 750,-</div></div><div class="pricing-desc">Styrketesting kombinert med treningsveiledning. Gjenoppbygg muskelstyrke så raskt som mulig.</div></div>
+                    <div class="pricing-option"><div class="pricing-header"><div class="pricing-title">Full Return to Play</div><div class="pricing-cost">2 580,-</div></div><div class="pricing-desc">Fullstendig undersøkelse inkludert styrke, psykologisk screening og full funksjonell analyse.</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: NEW CASE STUDY (Sprek65) -->
+        <div class="slide" id="slide-12">
+            <div class="flex flex-col items-center justify-center h-full px-6 md:px-20 content-reveal pt-20 md:pt-0">
+                <div class="w-full max-w-4xl flex flex-col items-center md:items-start text-center md:text-left mb-6">
+                    <span class="sub-label mb-2">Best Practice</span>
+                    <h2 class="branding-text-bold grad-aurora" style="font-size: 3rem;">Kundecase: Nimi Sprek65</h2>
+                    <p class="text-lg text-white opacity-60 max-w-2xl mt-2">
+                        Slik paketerer og selger ledende klinikker "Senior Fitness". Fokus på fysiologisk alder og trygghet.
+                    </p>
+                </div>
+
+                <div class="pricing-consolidated-card case-grid">
+                     <!-- Left: Concept -->
+                    <div class="pricing-option" style="border-right: 1px solid rgba(255,255,255,0.1);">
+                        <div class="flex flex-col gap-4">
+                             <div class="p-4 bg-white/5 rounded-lg border border-white/10">
+                                <h4 class="text-xl font-bold text-white mb-2">Konseptet "Sprek65"</h4>
+                                <ul class="text-sm text-gray-300 space-y-2 text-left">
+                                    <li class="flex gap-2"><i class="ph ph-check text-green-500"></i> Funksjonstest for 65+</li>
+                                    <li class="flex gap-2"><i class="ph ph-check text-green-500"></i> Måler fysiologisk alder</li>
+                                    <li class="flex gap-2"><i class="ph ph-check text-green-500"></i> Motivasjon til aktivitet</li>
+                                </ul>
+                             </div>
+                             <div class="italic text-gray-400 text-sm">
+                                "En test for å se om kroppen er eldre eller yngre enn din faktiske alder."
+                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Packages -->
+                    <div class="pricing-option">
+                        <div class="pricing-header">
+                            <div class="pricing-title">Markedspakker</div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <!-- Package 1 -->
+                            <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                                <div class="text-left">
+                                    <div class="text-white font-bold text-lg">Sprek65 Test</div>
+                                    <div class="text-xs text-gray-400">60 min test + rapport + gjennomgang</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-bold text-[var(--color-brand-accent)]">1 490,-</div>
+                                </div>
+                            </div>
+
+                            <!-- Package 2 -->
+                            <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                                <div class="text-left">
+                                    <div class="text-white font-bold text-lg">Sprek65 + Veiledning</div>
+                                    <div class="text-xs text-gray-400">Test + 3 PT-timer for tilpasning</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-bold text-[var(--color-brand-accent)]">3 890,-</div>
+                                </div>
+                            </div>
+
+                             <!-- Package 3 -->
+                            <div class="flex justify-between items-center">
+                                <div class="text-left">
+                                    <div class="text-white font-bold text-lg">Årskontroll Senior</div>
+                                    <div class="text-xs text-gray-400">Re-test hver 6. mnd for å måle effekt</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-bold text-[var(--color-brand-accent)]">2 200,- /år</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Marketing in Action -->
+        <div class="slide" id="slide-13">
+            <div class="flex flex-col items-center justify-center h-full px-6 md:px-20 content-reveal pt-20 md:pt-0">
+                <div class="w-full max-w-5xl flex flex-col items-center md:items-start text-center md:text-left mb-8">
+                    <span class="sub-label mb-2">Viral Effekt</span>
+                    <h2 class="branding-text-bold grad-aurora viral-glitch-text" style="font-size: 3rem;">Markedsføring i Praksis</h2>
+                    <p class="text-lg text-white opacity-60 max-w-2xl mt-2">
+                        Teknologien bak <b>355 millioner visninger</b> er nå i din klinikk. Gjenskap virale øyeblikk og sett merkevaren din i søkelyset.
+                    </p>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center justify-center gap-12">
+                    <!-- Left Stats -->
+                    <div class="flex flex-row md:flex-col gap-12 pr-0 md:pr-10 border-b md:border-b-0 md:border-r border-white/10 pb-8 md:pb-0">
+                        <div class="flex flex-col items-center">
+                            <div class="text-5xl font-black grad-aurora">9.1M+</div>
+                            <div class="text-xs uppercase tracking-tighter opacity-50 font-bold">Likes Totalt</div>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="text-5xl font-black grad-aurora">100%</div>
+                            <div class="text-xs uppercase tracking-tighter opacity-50 font-bold">Organisk Rekkevidde</div>
+                        </div>
+                    </div>
+
+                    <!-- Video Grid -->
+                    <div class="flex flex-row gap-8">
+                        <div class="relative">
+                            <div class="portrait-video-container marketing-video-container shadow-2xl border-2 border-green-900/30">
+                                <video class="deep-dive-video" id="video-viral-1" muted loop playsinline>
+                                    <source src="https://storage.googleapis.com/intro_alphatek/videoer/What%E2%80%99s%20Your%20Animal%20Strength%EF%BC%9F.mp4" type="video/mp4">
+                                </video>
+                                <div class="viral-stat-overlay">
+                                    <div class="text-2xl font-black">234M</div>
+                                    <div class="text-[10px] opacity-80">Visninger</div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3 text-[10px] font-bold uppercase tracking-widest opacity-40">"Animal Strength"</div>
+                        </div>
+
+                        <div class="relative">
+                            <div class="portrait-video-container marketing-video-container shadow-2xl border-2 border-green-900/30">
+                                <video class="deep-dive-video" id="video-viral-2" muted loop playsinline>
+                                    <source src="https://storage.googleapis.com/intro_alphatek/videoer/videoplayback.mp4" type="video/mp4">
+                                </video>
+                                <div class="viral-stat-overlay">
+                                    <div class="text-2xl font-black">121M</div>
+                                    <div class="text-[10px] opacity-80">Visninger</div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3 text-[10px] font-bold uppercase tracking-widest opacity-40">"Hvilket Dyr?"</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 13; // Updated total count
+        const slides = document.querySelectorAll('.slide');
+        const titleLoop = document.getElementById('title-loop');
+        const bgImage = document.getElementById('bg-image');
+        const globalNav = document.getElementById('global-nav-grid');
+        
+        // Map videos by ID
+        const videos = {
+            shoulderInfo: document.getElementById('video-shoulder-info'),
+            shoulderWork: document.getElementById('video-shoulder-workshop'),
+            rtpInfo: document.getElementById('video-rtp-info'),
+            rtpWork: document.getElementById('video-rtp-workshop'),
+            seniorInfo: document.getElementById('video-senior-info'),
+            seniorWork: document.getElementById('video-senior-workshop'),
+            generalWork: document.getElementById('video-general-workshop'),
+            runInfo: document.getElementById('video-run-info'),
+            viral1: document.getElementById('video-viral-1'),
+            viral2: document.getElementById('video-viral-2'),
+            fitnessInfo: document.getElementById('video-fitness-info'),
+        };
+
+        const navCards = {
+            shoulder: document.getElementById('card-shoulder'),
+            rtp: document.getElementById('card-rtp'),
+            senior: document.getElementById('card-senior'),
+            fitness: document.getElementById('card-fitness'),
+            general: document.getElementById('card-general'),
+            run: document.getElementById('card-run')
+        };
+
+        function clearActiveNav() {
+            Object.values(navCards).forEach(card => card.classList.remove('active-topic'));
+        }
+
+        async function pauseAllVideos() {
+            for (const v of Object.values(videos)) { if (v) v.pause(); }
+        }
+
+        async function playVideo(video) {
+            if (!video) return;
+            try {
+                video.currentTime = 0;
+                await video.play();
+            } catch (err) {
+                if (err.name !== 'AbortError') console.error("Video play error:", err);
+            }
+        }
+
+        async function updateSlides() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) slide.classList.add('active');
+            });
+
+            await pauseAllVideos();
+
+            // Background Image Logic
+            if (currentSlide > 1) {
+                bgImage.classList.add('force-hide');
+            } else {
+                bgImage.classList.remove('force-hide');
+            }
+
+            // Navigation State Logic
+            if (currentSlide === 0) {
+                titleLoop.classList.remove('fade-out');
+                bgImage.classList.remove('zoomed-out');
+                globalNav.classList.remove('visible', 'sidebar-layout');
+            } 
+            else if (currentSlide === 1) {
+                titleLoop.classList.add('fade-out');
+                bgImage.classList.add('zoomed-out');
+                globalNav.classList.add('visible');
+                globalNav.classList.remove('sidebar-layout');
+                clearActiveNav();
+            } 
+            else {
+                titleLoop.classList.add('fade-out');
+                globalNav.classList.add('visible', 'sidebar-layout');
+                clearActiveNav();
+
+                // Logic per slide group
+                // Shoulder: 2 & 3
+                if (currentSlide === 2) { navCards.shoulder.classList.add('active-topic'); playVideo(videos.shoulderInfo); }
+                if (currentSlide === 3) { navCards.shoulder.classList.add('active-topic'); playVideo(videos.shoulderWork); }
+                
+                // RTP: 4 & 5
+                if (currentSlide === 4) { navCards.rtp.classList.add('active-topic'); playVideo(videos.rtpInfo); }
+                if (currentSlide === 5) { navCards.rtp.classList.add('active-topic'); playVideo(videos.rtpWork); }
+
+                // Senior: 6 & 7
+                if (currentSlide === 6) { navCards.senior.classList.add('active-topic'); playVideo(videos.seniorInfo); }
+                if (currentSlide === 7) { navCards.senior.classList.add('active-topic'); playVideo(videos.seniorWork); }
+
+                // Fitness Age: 8
+                if (currentSlide === 8) { navCards.fitness.classList.add('active-topic'); playVideo(videos.fitnessInfo); }
+
+                // General: 9
+                if (currentSlide === 9) { navCards.general.classList.add('active-topic'); playVideo(videos.generalWork); }
+
+                // Run: 10
+                if (currentSlide === 10) { navCards.run.classList.add('active-topic'); playVideo(videos.runInfo); }
+
+                // Business Model: 11 (No active specific nav, maybe keep last one or none)
+                
+                // New Case Study: 12 (No specific nav)
+
+                // Marketing: 13 (2 videos)
+                if (currentSlide === 13) { 
+                    playVideo(videos.viral1);
+                    playVideo(videos.viral2);
+                }
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                currentSlide = (currentSlide + 1) % (totalSlides + 1);
+                updateSlides();
+            } else if (e.key === 'ArrowLeft') {
+                currentSlide = currentSlide > 0 ? currentSlide - 1 : totalSlides;
+                updateSlides();
+            }
+        });
+
+        window.addEventListener('click', (e) => {
+            // Prevent navigation if clicking on download button or nav cards
+            if(!e.target.closest('.service-card') && !e.target.closest('.btn-download')) {
+                currentSlide = (currentSlide + 1) % (totalSlides + 1);
+                updateSlides();
+            }
+        });
+
+        // Navigation Clicks
+        navCards.shoulder.addEventListener('click', (e) => { e.stopPropagation(); currentSlide = 2; updateSlides(); });
+        navCards.rtp.addEventListener('click', (e) => { e.stopPropagation(); currentSlide = 4; updateSlides(); });
+        navCards.senior.addEventListener('click', (e) => { e.stopPropagation(); currentSlide = 6; updateSlides(); });
+        navCards.fitness.addEventListener('click', (e) => { e.stopPropagation(); currentSlide = 8; updateSlides(); });
+        navCards.general.addEventListener('click', (e) => { e.stopPropagation(); currentSlide = 9; updateSlides(); });
+        navCards.run.addEventListener('click', (e) => { e.stopPropagation(); currentSlide = 10; updateSlides(); });
+
+        // VISUAL EFFECTS
+        const aCanvas = document.getElementById('auroraCanvas');
+        const sCanvas = document.getElementById('synapseCanvas');
+        const aCtx = aCanvas.getContext('2d');
+        const sCtx = sCanvas.getContext('2d');
+        let width, height, time = 0;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            aCanvas.width = sCanvas.width = width;
+            aCanvas.height = sCanvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const blobs = [
+            { x: 0, y: 0, r: 800, h: 160, s: 0.02, seed: 1 },
+            { x: 0, y: 0, r: 900, h: 170, s: 0.015, seed: 2 },
+            { x: 0, y: 0, r: 700, h: 155, s: 0.025, seed: 3 },
+            { x: 0, y: 0, r: 1000, h: 165, s: 0.01, seed: 4 }
+        ];
+
+        const nodes = Array.from({ length: 30 }, () => ({
+            x: Math.random() * width, y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4
+        }));
+
+        function drawAurora() {
+            aCtx.globalCompositeOperation = 'source-over';
+            aCtx.fillStyle = "#0D0D0D";
+            aCtx.fillRect(0, 0, width, height);
+            aCtx.globalCompositeOperation = 'screen';
+            blobs.forEach((blob, i) => {
+                blob.x = width / 2 + Math.sin(time * 0.7 * blob.seed) * (width * 0.4);
+                blob.y = height / 2 + Math.cos(time * 0.5 * blob.seed) * (height * 0.3);
+                const currentRadius = blob.r * (0.8 + Math.sin(time + i) * 0.2);
+                const grad = aCtx.createRadialGradient(blob.x, blob.y, 0, blob.x, blob.y, currentRadius);
+                const opacity = 0.12 + Math.sin(time * 0.5 + i) * 0.04;
+                grad.addColorStop(0, `hsla(${blob.h}, 60%, 40%, ${opacity})`);
+                grad.addColorStop(0.5, `hsla(${blob.h}, 50%, 20%, ${opacity * 0.4})`);
+                grad.addColorStop(1, 'transparent');
+                aCtx.fillStyle = grad;
+                aCtx.beginPath(); aCtx.arc(blob.x, blob.y, currentRadius, 0, Math.PI * 2); aCtx.fill();
+            });
+        }
+
+        function drawSynapses() {
+            sCtx.clearRect(0, 0, width, height);
+            nodes.forEach((n1, i) => {
+                n1.x += n1.vx; n1.y += n1.vy;
+                if (n1.x < 0 || n1.x > width) n1.vx *= -1;
+                if (n1.y < 0 || n1.y > height) n1.vy *= -1;
+                sCtx.fillStyle = "rgba(47, 124, 83, 0.2)";
+                sCtx.beginPath(); sCtx.arc(n1.x, n1.y, 1.2, 0, Math.PI * 2); sCtx.fill();
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const n2 = nodes[j];
+                    const dist = Math.hypot(n1.x - n2.x, n1.y - n2.y);
+                    if (dist < 220) {
+                        const alpha = (1 - dist / 220) * 0.08;
+                        sCtx.strokeStyle = `rgba(47, 124, 83, ${alpha})`;
+                        sCtx.lineWidth = 0.5;
+                        sCtx.beginPath(); sCtx.moveTo(n1.x, n1.y); sCtx.lineTo(n2.x, n2.y); sCtx.stroke();
+                    }
+                }
+            });
+        }
+
+        function animate() {
+            time += 0.007; 
+            drawAurora();
+            drawSynapses();
+            requestAnimationFrame(animate);
+        }
+
+        window.onload = animate;
+    </script>
+</body>
+</html>
