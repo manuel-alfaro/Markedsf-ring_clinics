@@ -247,7 +247,7 @@
             transform: translateY(-2px);
         }
 
-        /* --- BUSINESS MODEL STYLES (Restored) --- */
+        /* --- BUSINESS MODEL STYLES --- */
         .concept-triad { display: flex; justify-content: center; align-items: center; gap: 30px; margin: 30px auto; }
         .triad-item { display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .triad-icon-box {
@@ -275,7 +275,7 @@
         .pricing-cost { font-size: 1.8rem; color: var(--color-brand-accent); font-weight: bold; margin-top: 5px; }
         .pricing-desc { font-size: 0.9rem; color: rgba(255,255,255,0.7); line-height: 1.5; }
 
-        /* --- MARKETING STYLES (Restored) --- */
+        /* --- MARKETING STYLES --- */
         .marketing-video-container { width: 220px; height: 391px; }
         .viral-stat-overlay {
             position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
@@ -295,6 +295,38 @@
             8% { transform: translate(2px, -2px); }
             10% { transform: translate(0); }
         }
+
+        /* --- NEW CATALOG & CALCULATOR STYLES --- */
+        .catalog-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            display: flex; flex-direction: column;
+        }
+        .catalog-card:hover {
+            background: rgba(47, 124, 83, 0.1);
+            border-color: rgba(47, 124, 83, 0.5);
+            transform: translateY(-5px);
+        }
+        .catalog-img-container {
+            height: 120px; width: 100%;
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 1rem; background: #fff; border-radius: 6px;
+            overflow: hidden; padding: 5px;
+        }
+        .catalog-img-container img { height: 100%; object-fit: contain; }
+        .calc-container {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--color-brand-accent);
+            border-radius: 12px; padding: 25px; backdrop-filter: blur(10px);
+        }
+        .calc-input {
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 10px 12px; border-radius: 6px; width: 100%;
+            font-family: monospace; font-size: 1.1rem; outline: none; transition: border 0.3s;
+        }
+        .calc-input:focus { border-color: var(--color-brand-accent); }
 
         /* --- LOGO --- */
         .bottom-logo {
@@ -454,7 +486,6 @@
                         <h3 class="branding-text-bold grad-aurora" style="font-size: 3.5rem;">Shoulder Screening</h3>
                         <p class="text-xl text-white font-light leading-relaxed opacity-80 mt-2">ASH-protokollen sikrer at skulderen er klar for belastning. Objektiv analyse av isometrisk styrke og symmetri.</p>
                         
-                        <!-- Added Download Button -->
                         <a href="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/Social%20Media%20-%20Alphatatek%20-%20Shoulder%20Test%20-%204k%20%20(1).mp4" download class="btn-download w-fit">
                             <i class="ph ph-download-simple"></i> Last ned Video
                         </a>
@@ -501,7 +532,6 @@
                         <h3 class="branding-text-bold grad-aurora" style="font-size: 3.5rem;">Return to Play</h3>
                         <p class="text-xl text-white font-light leading-relaxed opacity-80 mt-2">Robust vurdering for å avgjøre klarhet etter kneskade. Kombinerer objektive hopp-data med symmetri-analyse.</p>
                         
-                        <!-- Added Download Button -->
                         <a href="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/NO%20TEXT%20ON%20-%20Alphatatek%20-%20Knee%20Test%20-%204k%20.mp4" download class="btn-download w-fit">
                             <i class="ph ph-download-simple"></i> Last ned Video
                         </a>
@@ -548,7 +578,6 @@
                         <h3 class="branding-text-bold grad-aurora" style="font-size: 3.5rem;">Senior Fitness</h3>
                         <p class="text-xl text-white font-light leading-relaxed opacity-80 mt-2">Kartlegger fallrisiko ved å teste balanse, styrke og funksjon. Vitalt for å opprettholde selvstendighet.</p>
                         
-                        <!-- Added Download Button -->
                         <a href="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/Age%20Test%20-%20NO%20TEXT%20ON%20-%20Alphatatek%20-%204k%20.mp4" download class="btn-download w-fit">
                             <i class="ph ph-download-simple"></i> Last ned Video
                         </a>
@@ -582,7 +611,7 @@
         </div>
 
         <!-- ==============================================
-             4. FITNESS AGE (UPCOMING) - MOVED HERE
+             4. FITNESS AGE (UPCOMING)
              ============================================== -->
         <!-- Slide 8: Fitness Age Info -->
         <div class="slide" id="slide-8">
@@ -638,7 +667,6 @@
                         <h3 class="branding-text-bold grad-aurora" style="font-size: 3.5rem;">Run Safer</h3>
                         <p class="text-xl text-white font-light leading-relaxed opacity-80 mt-2">En spesifikk protokoll for trygg retur til løping. Etablerer baseline for ytelse og overvåker belastningstoleranse.</p>
                         
-                        <!-- Added Download Button -->
                         <a href="https://storage.googleapis.com/intro_alphatek/videoer/Videoer%20colo/Running%20Version%20-%20NO%20TEXT%20ON%20-%20Alphatatek%20-%20Knee%20Test%20-%204k%20.mp4" download class="btn-download w-fit">
                             <i class="ph ph-download-simple"></i> Last ned Video
                         </a>
@@ -818,11 +846,132 @@
             </div>
         </div>
 
+        <!-- ==============================================
+             8. NY: KATALOG OG KALKULATOR (Slide 14)
+             ============================================== -->
+        <div class="slide" id="slide-14">
+            <div class="flex flex-col items-center justify-start h-full w-full px-6 md:px-10 content-reveal pt-24 pb-48 md:pb-24 overflow-y-auto">
+                <div class="w-full max-w-7xl flex flex-col xl:flex-row gap-10">
+                    
+                    <!-- Left: Catalog Grid -->
+                    <div class="flex-1">
+                        <span class="sub-label mb-2">Prising & Tidsbruk</span>
+                        <h2 class="branding-text-bold grad-aurora text-4xl mb-6">Rapportkatalog</h2>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            
+                            <!-- Shoulder -->
+                            <div class="catalog-card">
+                                <div class="catalog-img-container"><img src="https://storage.googleapis.com/intro_alphatek/reports/shoulder.png" alt="Shoulder"></div>
+                                <h4 class="text-lg font-bold text-white">Shoulder Screen</h4>
+                                <div class="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-3">
+                                    <i class="ph ph-clock"></i> 30 min gjennomføring
+                                </div>
+                                <div class="mt-auto pt-3 border-t border-white/10 flex justify-between items-end">
+                                    <span class="text-xs uppercase text-gray-500 font-bold">Anbefalt Pris</span>
+                                    <span class="text-lg font-bold text-[var(--color-brand-accent)]">700 - 1 200,-</span>
+                                </div>
+                            </div>
+
+                            <!-- Senior -->
+                            <div class="catalog-card">
+                                <div class="catalog-img-container"><img src="https://storage.googleapis.com/intro_alphatek/reports/senior%20raport.png" alt="Senior"></div>
+                                <h4 class="text-lg font-bold text-white">Senior Fitness</h4>
+                                <div class="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-3">
+                                    <i class="ph ph-clock"></i> 30 min gjennomføring
+                                </div>
+                                <div class="mt-auto pt-3 border-t border-white/10 flex justify-between items-end">
+                                    <span class="text-xs uppercase text-gray-500 font-bold">Anbefalt Pris</span>
+                                    <span class="text-lg font-bold text-[var(--color-brand-accent)]">600 - 1 000,-</span>
+                                </div>
+                            </div>
+
+                            <!-- RTP -->
+                            <div class="catalog-card">
+                                <div class="catalog-img-container"><img src="https://storage.googleapis.com/intro_alphatek/reports/Return%20to%20play.png" alt="RTP"></div>
+                                <h4 class="text-lg font-bold text-white">Return to Play</h4>
+                                <div class="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-3">
+                                    <i class="ph ph-clock"></i> 15 min gjennomføring
+                                </div>
+                                <div class="mt-auto pt-3 border-t border-white/10 flex justify-between items-end">
+                                    <span class="text-xs uppercase text-gray-500 font-bold">Anbefalt Pris</span>
+                                    <span class="text-lg font-bold text-[var(--color-brand-accent)]">500 - 850,-</span>
+                                </div>
+                            </div>
+
+                            <!-- Run Safer -->
+                            <div class="catalog-card">
+                                <div class="catalog-img-container"><img src="https://storage.googleapis.com/intro_alphatek/reports/Return%20to%20play.png" alt="Run Safer"></div>
+                                <h4 class="text-lg font-bold text-white">Run Safer</h4>
+                                <div class="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-3">
+                                    <i class="ph ph-clock"></i> 15 min gjennomføring
+                                </div>
+                                <div class="mt-auto pt-3 border-t border-white/10 flex justify-between items-end">
+                                    <span class="text-xs uppercase text-gray-500 font-bold">Anbefalt Pris</span>
+                                    <span class="text-lg font-bold text-[var(--color-brand-accent)]">500 - 850,-</span>
+                                </div>
+                            </div>
+
+                            <!-- Bio Age -->
+                            <div class="catalog-card">
+                                <div class="catalog-img-container"><img src="https://storage.googleapis.com/intro_alphatek/reports/Skjermbilde%202026-01-28%20kl.%2017.38.43.png" alt="Bio Age" style="object-position: top; object-fit: cover;"></div>
+                                <h4 class="text-lg font-bold text-white">Fitness / Bio Age</h4>
+                                <div class="flex items-center gap-2 text-sm text-gray-400 mt-1 mb-2">
+                                    <i class="ph ph-clock"></i> 5 min gjennomføring
+                                </div>
+                                <p class="text-xs text-gray-500 mb-3 italic leading-tight">Glimrende å bake inn i PT-pakker, medlemskap eller treningsprogram.</p>
+                                <div class="mt-auto pt-3 border-t border-white/10 flex justify-between items-end">
+                                    <span class="text-xs uppercase text-gray-500 font-bold">Frittstående Pris</span>
+                                    <span class="text-lg font-bold text-[var(--color-brand-accent)]">300 - 500,-</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Right: Calculator -->
+                    <div class="w-full xl:w-[400px] shrink-0 mt-10 xl:mt-0">
+                        <div class="calc-container sticky top-24 shadow-2xl">
+                            <h3 class="text-2xl font-bold text-white mb-2">Inntjeningskalkulator</h3>
+                            <p class="text-sm text-gray-400 mb-6">Regn ut potensialet for din klinikk basert på estimert salg pr. uke.</p>
+
+                            <div class="space-y-5 mb-8">
+                                <div>
+                                    <label class="text-xs uppercase tracking-widest text-gray-400 block mb-1">Snittpris pr. rapport (NOK)</label>
+                                    <input type="number" id="calc-price" value="800" min="0" step="50" class="calc-input">
+                                </div>
+                                <div>
+                                    <label class="text-xs uppercase tracking-widest text-gray-400 block mb-1">Antall Terapeuter</label>
+                                    <input type="number" id="calc-therapists" value="3" min="1" step="1" class="calc-input">
+                                </div>
+                                <div>
+                                    <label class="text-xs uppercase tracking-widest text-gray-400 block mb-1">Rapporter solgt pr. uke (pr. terapeut)</label>
+                                    <input type="number" id="calc-reports" value="5" min="1" step="1" class="calc-input">
+                                </div>
+                            </div>
+
+                            <div class="bg-black/50 rounded-lg p-5 border border-white/10">
+                                <div class="flex justify-between items-end mb-4 border-b border-white/10 pb-4">
+                                    <span class="text-sm text-gray-400 uppercase tracking-widest">Est. pr. Måned</span>
+                                    <span class="text-2xl font-black text-white" id="res-month">0 kr</span>
+                                </div>
+                                <div class="flex justify-between items-end">
+                                    <span class="text-sm text-[var(--color-brand-accent)] uppercase tracking-widest font-bold">Est. pr. År</span>
+                                    <span class="text-3xl font-black text-[var(--color-brand-accent)]" id="res-year">0 kr</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
         let currentSlide = 0;
-        const totalSlides = 13; // Updated total count
+        const totalSlides = 14; // Updated total count (0 to 14)
         const slides = document.querySelectorAll('.slide');
         const titleLoop = document.getElementById('title-loop');
         const bgImage = document.getElementById('bg-image');
@@ -925,15 +1074,16 @@
                 // Run: 10
                 if (currentSlide === 10) { navCards.run.classList.add('active-topic'); playVideo(videos.runInfo); }
 
-                // Business Model: 11 (No active specific nav, maybe keep last one or none)
-                
-                // New Case Study: 12 (No specific nav)
+                // Business Model: 11 (No active specific nav)
+                // Case Study: 12 (No specific nav)
 
                 // Marketing: 13 (2 videos)
                 if (currentSlide === 13) { 
                     playVideo(videos.viral1);
                     playVideo(videos.viral2);
                 }
+                
+                // Catalog & Calc: 14 (No specific nav)
             }
         }
 
@@ -948,8 +1098,10 @@
         });
 
         window.addEventListener('click', (e) => {
-            // Prevent navigation if clicking on download button or nav cards
-            if(!e.target.closest('.service-card') && !e.target.closest('.btn-download')) {
+            // Prevent navigation if clicking on interactive elements
+            if(!e.target.closest('.service-card') && 
+               !e.target.closest('.btn-download') && 
+               !e.target.closest('.calc-input')) {
                 currentSlide = (currentSlide + 1) % (totalSlides + 1);
                 updateSlides();
             }
@@ -962,6 +1114,37 @@
         navCards.fitness.addEventListener('click', (e) => { e.stopPropagation(); currentSlide = 8; updateSlides(); });
         navCards.general.addEventListener('click', (e) => { e.stopPropagation(); currentSlide = 9; updateSlides(); });
         navCards.run.addEventListener('click', (e) => { e.stopPropagation(); currentSlide = 10; updateSlides(); });
+
+        // CALCULATOR LOGIC
+        function initCalculator() {
+            const priceIn = document.getElementById('calc-price');
+            const therapistsIn = document.getElementById('calc-therapists');
+            const reportsIn = document.getElementById('calc-reports');
+            const resMonth = document.getElementById('res-month');
+            const resYear = document.getElementById('res-year');
+
+            function calculate() {
+                const price = parseFloat(priceIn.value) || 0;
+                const therapists = parseFloat(therapistsIn.value) || 0;
+                const reportsPerWeek = parseFloat(reportsIn.value) || 0;
+
+                const weeklyRevenue = price * therapists * reportsPerWeek;
+                // Average 4.33 weeks per month
+                const monthlyRevenue = weeklyRevenue * 4.333;
+                const yearlyRevenue = weeklyRevenue * 52;
+
+                resMonth.innerText = Math.round(monthlyRevenue).toLocaleString('no-NO') + ' kr';
+                resYear.innerText = Math.round(yearlyRevenue).toLocaleString('no-NO') + ' kr';
+            }
+
+            priceIn.addEventListener('input', calculate);
+            therapistsIn.addEventListener('input', calculate);
+            reportsIn.addEventListener('input', calculate);
+            
+            // Initial calculation
+            calculate();
+        }
+        window.addEventListener('load', initCalculator);
 
         // VISUAL EFFECTS
         const aCanvas = document.getElementById('auroraCanvas');
@@ -1038,7 +1221,10 @@
             requestAnimationFrame(animate);
         }
 
-        window.onload = animate;
+        window.onload = () => {
+            initCalculator();
+            animate();
+        };
     </script>
 </body>
 </html>
