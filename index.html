@@ -1049,8 +1049,14 @@
             } 
             else {
                 titleLoop.classList.add('fade-out');
-                globalNav.classList.add('visible', 'sidebar-layout');
                 clearActiveNav();
+
+                // Show sidebar only for slides 2 to 10
+                if (currentSlide <= 10) {
+                    globalNav.classList.add('visible', 'sidebar-layout');
+                } else {
+                    globalNav.classList.remove('visible', 'sidebar-layout');
+                }
 
                 // Logic per slide group
                 // Shoulder: 2 & 3
